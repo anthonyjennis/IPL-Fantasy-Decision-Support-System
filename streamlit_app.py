@@ -22,9 +22,9 @@ st.sidebar.header("⚙️ Filter Controls")
 teams = sorted(df["Team_2025"].dropna().unique().tolist())
 selected_teams = st.sidebar.multiselect("Select Team(s)", teams, max_selections=2)
 
-min_matches = int(st.sidebar.slider("Minimum matches played", 0, 20, 5))
-min_sr = float(st.sidebar.slider("Minimum batting strike rate", 50.0, 200.0, 100.0))
-max_econ = float(st.sidebar.slider("Maximum bowling economy rate", 4.0, 15.0, 10.0))
+min_matches = int(st.sidebar.slider("Minimum matches played", 0, 100, 0))
+min_sr = float(st.sidebar.slider("Minimum batting strike rate", 0.0, 600.0, 0.0))
+max_econ = float(st.sidebar.slider("Maximum bowling economy rate", 0.0, 36.0, 30.0))
 
 filtered_df = df[
     (df["Total_Matches"] >= min_matches)
