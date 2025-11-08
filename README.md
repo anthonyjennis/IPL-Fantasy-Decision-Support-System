@@ -2,6 +2,9 @@
 
 Streamlit dashboard for selecting fantasy cricket teams using IPL 2023–2025 data.
 
+### Live App
+👉 [View on Streamlit Cloud](https://ipl-fantasy.streamlit.app/)
+
 ## Run locally
 1. Create venv + activate
 2. pip install -r requirements.txt
