@@ -1,0 +1,79 @@
+{
+ "meta": {
+  "data_version": "1.1.0"
+ },
+ "info": {
+  "dates": [
+   "2026-03-29"
+  ],
+  "season": "2026",
+  "event": {
+   "name": "Indian Premier League",
+   "match_number": 1
+  },
+  "teams": [
+   "Alpha",
+   "Beta"
+  ],
+  "venue": "Test Ground",
+  "city": "Mumbai",
+  "players": {
+   "Alpha": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "A10",
+    "A11"
+   ],
+   "Beta": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "B6",
+    "B7",
+    "B8",
+    "B9",
+    "B10",
+    "B11"
+   ]
+  },
+  "registry": {
+   "people": {
+    "A1": "id_A1",
+    "A2": "id_A2",
+    "A3": "id_A3",
+    "A4": "id_A4",
+    "A5": "id_A5",
+    "A6": "id_A6",
+    "A7": "id_A7",
+    "A8": "id_A8",
+    "A9": "id_A9",
+    "A10": "id_A10",
+    "A11": "id_A11",
+    "B1": "id_B1",
+    "B2": "id_B2",
+    "B3": "id_B3",
+    "B4": "id_B4",
+    "B5": "id_B5",
+    "B6": "id_B6",
+    "B7": "id_B7",
+    "B8": "id_B8",
+    "B9": "id_B9",
+    "B10": "id_B10",
+    "B11": "id_B11"
+   }
+  },
+  "outcome": {
+   "result": "no result"
+  }
+ },
+ "innings": []
+}
