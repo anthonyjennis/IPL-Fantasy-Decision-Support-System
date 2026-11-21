@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Data files are checksummed in data/MANIFEST.json: never rewrite their line endings
+data/** -text

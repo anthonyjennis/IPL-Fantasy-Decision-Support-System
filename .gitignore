@@ -6,3 +6,7 @@ venv/
 *.pyc
 .ipynb_checkpoints/
 *.sqlite
+.pytest_cache/
+# large/regenerable: rebuild with pipeline/build_from_cricsheet.py, checksums live in data/MANIFEST.json
+data/raw/ipl_json.zip
+data/processed/legacy_check.csv

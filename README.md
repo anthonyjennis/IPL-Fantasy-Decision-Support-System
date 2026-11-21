@@ -1,85 +1,77 @@
 # 🏏 IPL Fantasy Decision Support System 📊
 
-**An End-to-End Machine Learning-powered analytics dashboard to optimize IPL Fantasy team selection.**
+An analytics dashboard that ranks IPL players for fantasy cricket and builds a valid fantasy XI.
 
 ### Live App
 👉 **[View Dashboard on Streamlit Cloud](https://ipl-fantasy.streamlit.app/)**
 
 ---
 
-## 🎯 Project Overview
-The **IPL Fantasy Decision Support System** is a data analytics and machine learning project designed to identify high-value players for fantasy cricket leagues. Unlike basic stat trackers that only show past aggregates, this system uses a **predictive modeling pipeline** to forecast a player's future "Fantasy Potential Score", identifying the best players to maximize points for a Fantasy Team.
+## Status: v1 audited, v2 in progress
 
-This project demonstrates a complete **Full-Stack Data Science & ML workflow**: from raw JSON extraction and ETL to feature engineering, Machine Learning modeling (Random Forest), and a deployed interactive dashboard.
+v1 combined a custom fantasy score (`Enhanced_FPS`) built from 2023–2025 per-match data with a Random Forest that predicted it.
 
-### 🛠️ Tech Stack & Skills Demonstrated
-* **Languages:** Python (Pandas, NumPy)
-* **Machine Learning:** Scikit-Learn (Random Forest Regressor), Predictive Modeling, Time-Series Data Splits
-* **Data Visualization:** Matplotlib, Seaborn
-* **Deployment:** Streamlit
-* **Concepts:** ETL Pipelines, Feature Engineering, Regression, Data Leakage Prevention, Interactive Dashboards
+An audit (**[AUDIT.md](AUDIT.md)**) found that the model's reported R² of 0.899 was measured on its own training rows. On a true forward test, a no-model baseline ("each player repeats his last two seasons") ranked players better. Here is the comparison (ρ is the Spearman rank correlation; higher means better ranking):
 
----
+| Forward test: train ≤2024, predict 2025 | R² | Spearman ρ |
+|---|---|---|
+| v1 Random Forest | 0.130 | 0.427 |
+| Baseline: past two seasons | 0.154 | 0.525 |
 
-## 🏗️ System Flow & Architecture
+v2 (**[PLAN.md](PLAN.md)**) will make these changes:
+- rebuild the data from Cricsheet ball-by-ball files through 2026
+- score players with a real, versioned fantasy rule set
+- test models with a rolling, season-by-season backtest against baselines
 
-The project processes data in four distinct phases:
+Until then, the dashboard runs on v1's numbers, with a caveat shown in the app.
 
-1. **Phase 1: Data Pipeline (ETL)**
-   * **Extraction:** Ingests raw, nested JSON data containing ball-by-ball performance for IPL seasons (2023-2025).
-   * **Transformation:** Flattens the hierarchical structures into a tabular CSV format.
-   * **Cleaning:** Handles missing values, standardizes player names, and filters out inactive players.
-2. **Phase 2: Feature Engineering & Scoring**
-   * Computes custom metrics, including a dynamic "Strike Rate Bonus" and "Economy Rate Bonus".
-   * Normalizes match counts to ensure that players with a small sample size do not arbitrarily skew the rankings.
-3. **Phase 3: Predictive Modeling (Machine Learning)**
-   * **Goal:** Predict a player's future fantasy output based on historical traits.
-   * **Methodology:** The data is split temporally. Stats from previous seasons (2023-2024) act as the input features (X), while the actual fantasy points earned in the next season (2025) act as the target (Y).
-   * **Model:** A **Random Forest Regressor** is trained to capture non-linear relationships (e.g., the trade-off between wicket-taking risk and economy rate). This prevents data leakage and ensures robust, real-world predictive power.
-4. **Phase 4: Visualization & Dashboarding**
-   * Built an interactive **Streamlit** dashboard.
-   * Users can filter players by team, minimum matches, strike rate, and economy.
-   * The app includes an "Optimize XI Automatically" feature that programmatically selects the highest-value team while adhering to role constraints.
+## Project layout
 
----
+```
+streamlit_app.py            dashboard (reads data/app/players_scored.csv only)
+optimizer.py                exact best-XI selection under role and team limits
+pipeline/
+  v1_pipeline.py            frozen v1: raw JSON -> every data file, one command
+  build_from_cricsheet.py   v2 data: Cricsheet IPL JSON -> one row per player per match
+  verify_data.py            data lock: checks every file against data/MANIFEST.json
+data/
+  DATA.md                   what each file is, where it came from, what uses it
+  MANIFEST.json             SHA-256, row count, producer and consumers for every data file
+  raw/ reference/ processed/ app/
+scripts/evaluate_v1.py      reproduces every number in AUDIT.md
+notebooks/eda.ipynb         exploratory charts
+tests/                      builder, optimizer and app smoke tests
+```
 
-## 📂 File-by-File Explanation
+## Run locally (Python 3.12+)
 
-If you are exploring the codebase, here is a guide to what each file does:
+```bash
+git clone https://github.com/anthonyjennis/IPL-Fantasy-Decision-Support-System.git
+cd IPL-Fantasy-Decision-Support-System
+python -m venv .venv
+# Windows: .venv\Scripts\activate    Mac/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
 
-* `player_performance.json`: The raw data source containing nested ball-by-ball and match stats for players across multiple seasons.
-* `phase1.ipynb`: The ETL notebook. Reads the raw JSON, flattens it into a Pandas DataFrame, cleans up string names, handles NaNs, and exports `final_clean_ipl_2023_2025.csv`.
-* `phase2.ipynb`: The Feature Engineering notebook. Aggregates the cleaned data, defines the fantasy point scoring system, and calculates standard metrics like Strike Rate and Economy.
-* `phase3.ipynb` / `phase3_fixed_model.py`: The Machine Learning modeling script. Splits the data temporally to prevent data leakage, trains the Random Forest Regressor on historical stats to predict future fantasy scores, and generates the final predictive dataset.
-* `phase4.ipynb`: Exploratory Data Analysis (EDA). Contains Matplotlib and Seaborn visualizations detailing correlations, player consistency, and top performers.
-* `streamlit_app.py`: The frontend application code. Loads the final ML-predicted dataset and renders the interactive UI, charts, and team optimization logic using Streamlit.
-* `requirements.txt`: Defines all the Python dependencies required to run the project locally.
+python pipeline/verify_data.py     # data lock holds
+python pipeline/v1_pipeline.py     # rebuild all v1 data (identical output)
+python -m pytest -q tests          # tests
+streamlit run streamlit_app.py     # dashboard
+```
 
----
+### Building v2 data (includes 2026)
 
-## 🚀 Run Locally
+1. Download [`ipl_json.zip`](https://cricsheet.org/downloads/ipl_json.zip) into `data/raw/`.
+2. Run:
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/anthonyjennis/IPL-Fantasy-Decision-Support-System.git
-   cd IPL-Fantasy-Decision-Support-System
-   ```
+```bash
+python pipeline/build_from_cricsheet.py --legacy-check
+python pipeline/verify_data.py --update   # record the new checksums, then commit
+```
 
-2. **Set up environment**
-   ```bash
-   python -m venv .venv
-   # Windows
-   .venv\Scripts\activate
-   # Mac/Linux
-   source .venv/bin/activate
-   ```
+## Data lock
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Every file in `data/` is recorded in `data/MANIFEST.json`, along with its checksum and the script that produced it. `verify_data.py` fails if a file changes or an unrecorded file appears. CI rebuilds the data on every push and checks that the output is byte-for-byte identical.
 
-4. **Launch the App**
-   ```bash
-   streamlit run streamlit_app.py
-   ```
+## Credits
+
+Match data: [Cricsheet](https://cricsheet.org), Open Data Commons Attribution License. v1's source JSON was derived from an undocumented download; see `data/DATA.md`.

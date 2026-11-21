@@ -1,0 +1,74 @@
+{
+  "about": "Every file under data/. Change a file only by re-running its producer, then `python pipeline/verify_data.py --update` and commit both. See data/DATA.md.",
+  "files": {
+    "data/raw/player_performance.json": {
+      "role": "v1 source (frozen)",
+      "source": "Unknown original download; player names match Cricsheet's naming. Per-player, per-season lists of per-match batting/bowling figures, 2016-2025. Super overs merged into the main match.",
+      "producer": "none (raw)",
+      "consumers": [
+        "pipeline/v1_pipeline.py",
+        "pipeline/build_from_cricsheet.py --legacy-check"
+      ],
+      "sha256": "faf2e73686de1fcd549a8ced56ca9da129857de39bf6b07e2c020bb430d6cb50",
+      "rows": null
+    },
+    "data/raw/ipl_json.zip": {
+      "role": "v2 source",
+      "source": "https://cricsheet.org/downloads/ipl_json.zip (Open Data Commons Attribution License; credit Cricsheet). Not yet downloaded.",
+      "producer": "manual download",
+      "consumers": [
+        "pipeline/build_from_cricsheet.py"
+      ],
+      "sha256": "",
+      "rows": null
+    },
+    "data/reference/player_roles_teams_2025.csv": {
+      "role": "reference (hand-curated, frozen)",
+      "source": "Extracted from v1's phase3_with_roles_teams.csv. The script that built it was never committed (likely a rapidfuzz name match). Role whitespace stripped. Known gaps: see AUDIT.md 2.4.",
+      "producer": "none (curated)",
+      "consumers": [
+        "pipeline/v1_pipeline.py"
+      ],
+      "sha256": "9d679b48402282ee67092fafefccf633c4ba573e9362a3138ca8bd89722bd167",
+      "rows": 306
+    },
+    "data/processed/ipl_2023_2025_player_seasons.csv": {
+      "role": "intermediate (was legacy_version/final_clean_ipl_2023_2025.csv)",
+      "producer": "pipeline/v1_pipeline.py",
+      "consumers": [
+        "pipeline/v1_pipeline.py"
+      ],
+      "sha256": "dcb0a7f62a44d4633b3eb37066aba0f07ad3bd8d846a60942d1028660e50dd60",
+      "rows": 618
+    },
+    "data/processed/player_scores_2023_2025.csv": {
+      "role": "intermediate (was legacy_version/phase2.1_enhanced_fps_no_roles.csv)",
+      "producer": "pipeline/v1_pipeline.py",
+      "consumers": [
+        "pipeline/v1_pipeline.py",
+        "notebooks/eda.ipynb"
+      ],
+      "sha256": "11c2df010c2c18768dbb0c48cc0833b3354114e28d99d6301bf67ea5152dc07c",
+      "rows": 315
+    },
+    "data/app/players_scored.csv": {
+      "role": "app input (was phase3_with_roles_teams.csv)",
+      "producer": "pipeline/v1_pipeline.py",
+      "consumers": [
+        "streamlit_app.py",
+        "tests/"
+      ],
+      "sha256": "8658b99dd9a07fbf1e04d9418f9d3f89bb7bad4d2105ec9535ee7115f5fca482",
+      "rows": 306
+    },
+    "data/processed/player_matches.csv": {
+      "role": "v2 base table: one row per player per match, 2008-2026",
+      "producer": "pipeline/build_from_cricsheet.py",
+      "consumers": [
+        "v2 pipeline (to be written)"
+      ],
+      "sha256": "",
+      "rows": null
+    }
+  }
+}
